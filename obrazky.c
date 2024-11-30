@@ -244,7 +244,25 @@ obrazek nacti_ze_souboru(const char *soubor) {
 }
 
 void uloz_do_souboru(obrazek obr, const char *soubor) {
-  // todo
+  FILE *file = fopen(soubor, "w");
+  if(file == NULL) {
+    // todo handle error
+  }
+  int lineLength = obr.w / 2 + 1;
+
+  for(int i = 0; i < obr.h; i++) {
+    char buffer[lineLength];
+    for (int j = 0; j < obr.w; j++) {
+      short n = obr.data[i][j];
+
+      buffer[j * 2] = SYMBOLS[n];
+      if(j != lineLength) buffer[j * 2 + 1] = ' ';
+    }
+    fputs(buffer, file);
+    fputs("\n", file);
+  }
+
+  fclose(file);
 }
 
 int vyska(obrazek obr) {
@@ -264,6 +282,7 @@ void nastav_prvek(obrazek obr, int i, int j, short hodnota) {
     // normalize?
     return;
   }
+  // obr.data[i][j] = normalize(hodnota);
   obr.data[i][j] = hodnota; 
 }
 
@@ -289,4 +308,6 @@ int main() {
 
   obrazek test7 = otoc90(test6);
   zobraz(test7);
+
+  uloz_do_souboru(test7, "./output.txt");
 }
