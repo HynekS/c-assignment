@@ -2,11 +2,27 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#define BEZ_CHYBY
 #define MIN_VALUE 0
 #define MAX_VALUE 4
 #define MAXBUFLEN 100000
 
+//#define BEZ_CHYBY
+//#define CHYBA_ALOKACE
+//#define CHYBA_OTEVRENI
+//#define CHYBA_ZAVRENI
+//#define CHYBA_TYPU
+//#define CHYBA_JINA
+
+typedef enum {
+  BEZ_CHYBY,
+  CHYBA_ALOKACE,
+  CHYBA_OTEVRENI,
+  CHYBA_ZAVRENI,
+  CHYBA_TYPU,
+  CHYBA_JINA
+} STATE;
+
+STATE chyba = BEZ_CHYBY;
 
 const char SYMBOLS[] = {' ', '.', ':', '+', '#'};
 
@@ -25,12 +41,12 @@ typedef struct {
 obrazek inicializace(int h, int w) {
   short **data = (short**)malloc(h * sizeof(short*));
   if (data == NULL) {
-    // handle error
+    chyba = CHYBA_ALOKACE;
   }
   for (int i = 0; i < h; i++) {
     data[i] = (short *)malloc(w * sizeof(short));
     if (data[i] == NULL) {
-      // handle error
+      chyba = CHYBA_ALOKACE;
     }
   }
 
@@ -97,7 +113,7 @@ return instance;
 
 obrazek morfing(obrazek obr1, obrazek obr2) {
   if(obr1.h != obr2.h || obr1.w != obr2.w) {
-    // todo handle error
+    chyba = CHYBA_TYPU;
     return obr1;
   }
   obrazek instance = inicializace(obr1.h, obr1.w);
@@ -162,8 +178,7 @@ obrazek jasova_operace(obrazek obr, operace o, ...) {
     for (int j = 0; j < obr.w; j++) {
       short pixel = obr.data[i][j];
       switch(o) {
-        case NEGATIV: {        
-          // Todo check if the result is in range?
+        case NEGATIV: {
           obr.data[i][j] = normalize(MAX_VALUE - pixel);
           break;
         }
@@ -184,8 +199,7 @@ obrazek jasova_operace(obrazek obr, operace o, ...) {
 obrazek nacti_ze_souboru(const char *soubor) {
   FILE *file = fopen(soubor, "r");
   if(file == NULL) {
-    // set error
-    printf("error reading file");
+    chyba = CHYBA_OTEVRENI;
     return inicializace(0, 0);
   }
   size_t index = 0;
@@ -246,23 +260,23 @@ obrazek nacti_ze_souboru(const char *soubor) {
 void uloz_do_souboru(obrazek obr, const char *soubor) {
   FILE *file = fopen(soubor, "w");
   if(file == NULL) {
-    // todo handle error
+    chyba = CHYBA_OTEVRENI;
+    return;
   }
-  int lineLength = obr.w / 2 + 1;
 
   for(int i = 0; i < obr.h; i++) {
-    char buffer[lineLength];
     for (int j = 0; j < obr.w; j++) {
       short n = obr.data[i][j];
-
-      buffer[j * 2] = SYMBOLS[n];
-      if(j != lineLength) buffer[j * 2 + 1] = ' ';
+      fputc(SYMBOLS[n], file);
     }
-    fputs(buffer, file);
     fputs("\n", file);
   }
 
-  fclose(file);
+  int result = fclose(file);
+  if(result == EOF) {
+    chyba = CHYBA_ZAVRENI;
+  }
+
 }
 
 int vyska(obrazek obr) {
@@ -287,6 +301,7 @@ void nastav_prvek(obrazek obr, int i, int j, short hodnota) {
 }
 
 int main() {
+  printf("%i \n", chyba);
   //obrazek test = cerny(4, 2);
 //
   //zobraz(test);
