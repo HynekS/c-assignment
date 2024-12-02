@@ -2,41 +2,11 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#define MIN_VALUE 0
-#define MAX_VALUE 4
+#include "obrazky.h"
+
 #define MAXBUFLEN 100000
 
-//#define BEZ_CHYBY
-//#define CHYBA_ALOKACE
-//#define CHYBA_OTEVRENI
-//#define CHYBA_ZAVRENI
-//#define CHYBA_TYPU
-//#define CHYBA_JINA
-
-typedef enum {
-  BEZ_CHYBY,
-  CHYBA_ALOKACE,
-  CHYBA_OTEVRENI,
-  CHYBA_ZAVRENI,
-  CHYBA_TYPU,
-  CHYBA_JINA
-} STATE;
-
 STATE chyba = BEZ_CHYBY;
-
-const char SYMBOLS[] = {' ', '.', ':', '+', '#'};
-
-typedef enum operace {
-  NEGATIV,
-  ZMENA_JASU,
-  ZMENA_KONTRASTU
-} operace;
-
-typedef struct {
-  int h;
-  int w;
-  short** data;
-} obrazek;
 
 obrazek inicializace(int h, int w) {
   short **data = (short**)malloc(h * sizeof(short*));
@@ -292,11 +262,10 @@ char prvek(obrazek obr, int i, int j) {
 }
 
 void nastav_prvek(obrazek obr, int i, int j, short hodnota) {
-  if(hodnota > MAX_VALUE || hodnota < MIN_VALUE) {
-    // normalize?
+  if(i < 0 || i > obr.w || j < 0 || j > obr.h || hodnota > MAX_VALUE || hodnota < MIN_VALUE) {
+    chyba = CHYBA_TYPU;
     return;
   }
-  // obr.data[i][j] = normalize(hodnota);
   obr.data[i][j] = hodnota; 
 }
 
