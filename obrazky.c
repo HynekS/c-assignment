@@ -1,6 +1,6 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 
 #include "obrazky.h"
 
@@ -9,7 +9,7 @@
 STATE chyba = BEZ_CHYBY;
 
 obrazek inicializace(int h, int w) {
-  short **data = (short**)malloc(h * sizeof(short*));
+  short **data = (short **)malloc(h * sizeof(short *));
   if (data == NULL) {
     chyba = CHYBA_ALOKACE;
   }
@@ -27,9 +27,9 @@ obrazek cerny(int h, int w) {
   obrazek instance = inicializace(h, w);
 
   for (int i = 0; i < h; i++)
-        for (int j = 0; j < w; j++) {
-            instance.data[i][j] = 4;
-        }
+    for (int j = 0; j < w; j++) {
+      instance.data[i][j] = 4;
+    }
 
   return instance;
 }
@@ -38,20 +38,20 @@ void odstran(obrazek obr) {
   for (int i = 0; i < obr.h; i++) {
     free(obr.data[i]);
   }
-    
+
   free(obr.data);
 }
 
 void print_value(short value) {
   if (value >= 0 && value < sizeof(SYMBOLS)) {
-        printf("%c", SYMBOLS[value]);
-      } else {
-        printf("?");
-      }
+    printf("%c", SYMBOLS[value]);
+  } else {
+    printf("?");
+  }
 }
 
 void zobraz(obrazek obr) {
-  for(int i = 0; i < obr.h; i++) {
+  for (int i = 0; i < obr.h; i++) {
     for (int j = 0; j < obr.w; j++) {
       short n = obr.data[i][j];
       print_value(n);
@@ -67,27 +67,27 @@ obrazek otoc90(obrazek obr) {
   int ukazatel_nove_vysky = instance.h - 1;
   int ukazatel_nove_sirky = 0;
 
-  for(int i = 0; i < obr.h; i++) {
+  for (int i = 0; i < obr.h; i++) {
     for (int j = 0; j < obr.w; j++) {
       short n = obr.data[i][j];
       instance.data[ukazatel_nove_vysky][ukazatel_nove_sirky] = n;
       --ukazatel_nove_vysky;
-      if(ukazatel_nove_vysky < 0) {
+      if (ukazatel_nove_vysky < 0) {
         ukazatel_nove_vysky = instance.h - 1;
         ++ukazatel_nove_sirky;
+      }
     }
   }
-}
-return instance;
+  return instance;
 }
 
 obrazek morfing(obrazek obr1, obrazek obr2) {
-  if(obr1.h != obr2.h || obr1.w != obr2.w) {
+  if (obr1.h != obr2.h || obr1.w != obr2.w) {
     chyba = CHYBA_TYPU;
     return obr1;
   }
   obrazek instance = inicializace(obr1.h, obr1.w);
-  for(int i = 0; i < obr1.h; i++) {
+  for (int i = 0; i < obr1.h; i++) {
     for (int j = 0; j < obr1.w; j++) {
       short n1 = obr1.data[i][j];
       short n2 = obr2.data[i][j];
@@ -101,10 +101,11 @@ obrazek morfing(obrazek obr1, obrazek obr2) {
 
 short min(obrazek obr) {
   short currentMin = MAX_VALUE;
-  for(int i = 0; i < obr.h; i++) {
+  for (int i = 0; i < obr.h; i++) {
     for (int j = 0; j < obr.w; j++) {
       short n = obr.data[i][j];
-     if(n < currentMin) currentMin = n; 
+      if (n < currentMin)
+        currentMin = n;
     }
   }
   return currentMin;
@@ -112,19 +113,22 @@ short min(obrazek obr) {
 
 short max(obrazek obr) {
   short currentMax = MIN_VALUE;
-  for(int i = 0; i < obr.h; i++) {
+  for (int i = 0; i < obr.h; i++) {
     for (int j = 0; j < obr.w; j++) {
       short n = obr.data[i][j];
-     if(n > currentMax) currentMax = n; 
+      if (n > currentMax)
+        currentMax = n;
     }
   }
   return currentMax;
 }
 
 short normalize(double d) {
-  if(d < MIN_VALUE) return MIN_VALUE;
-  if(d > MAX_VALUE) return MAX_VALUE;
-  return (short) d;
+  if (d < MIN_VALUE)
+    return MIN_VALUE;
+  if (d > MAX_VALUE)
+    return MAX_VALUE;
+  return (short)d;
 }
 
 obrazek jasova_operace(obrazek obr, operace o, ...) {
@@ -134,32 +138,32 @@ obrazek jasova_operace(obrazek obr, operace o, ...) {
 
   va_list args;
   va_start(args, o);
-  if(o == ZMENA_JASU) {
+  if (o == ZMENA_JASU) {
     delta = va_arg(args, int);
   }
-  if(o == ZMENA_KONTRASTU) {
+  if (o == ZMENA_KONTRASTU) {
     // TODO check if the values exists and are correct
     multiplier = va_arg(args, double);
     addition = va_arg(args, int);
   }
   va_end(args);
 
-  for(int i = 0; i < obr.h; i++) {
+  for (int i = 0; i < obr.h; i++) {
     for (int j = 0; j < obr.w; j++) {
       short pixel = obr.data[i][j];
-      switch(o) {
-        case NEGATIV: {
-          obr.data[i][j] = normalize(MAX_VALUE - pixel);
-          break;
-        }
-        case ZMENA_JASU: {
-          obr.data[i][j] = normalize(pixel + delta);
-          break;
-        }
-        case ZMENA_KONTRASTU: {
-          obr.data[i][j] = normalize(pixel * multiplier + addition);
-          break;
-        }
+      switch (o) {
+      case NEGATIV: {
+        obr.data[i][j] = normalize(MAX_VALUE - pixel);
+        break;
+      }
+      case ZMENA_JASU: {
+        obr.data[i][j] = normalize(pixel + delta);
+        break;
+      }
+      case ZMENA_KONTRASTU: {
+        obr.data[i][j] = normalize(pixel * multiplier + addition);
+        break;
+      }
       }
     }
   }
@@ -168,7 +172,7 @@ obrazek jasova_operace(obrazek obr, operace o, ...) {
 
 obrazek nacti_ze_souboru(const char *soubor) {
   FILE *file = fopen(soubor, "r");
-  if(file == NULL) {
+  if (file == NULL) {
     chyba = CHYBA_OTEVRENI;
     return inicializace(0, 0);
   }
@@ -187,22 +191,22 @@ obrazek nacti_ze_souboru(const char *soubor) {
     index++;
     // Just ignore empty lines
     if (c == '\n' && charCount > 0) {
-      if(firstLineLength == 0) {
+      if (firstLineLength == 0) {
         firstLineLength = charCount;
       }
-      if(firstLineLength > charCount) {
+      if (firstLineLength > charCount) {
         printf("Uneven line length!");
         // TODO throw? early return?
-      }  
+      }
       charCount = 0;
       lineCount++;
     } else {
       charCount++;
     }
-    
+
   } while (c != EOF);
 
-  if(lineCount == 0) {
+  if (lineCount == 0) {
     // Todo throw or return empty image?
   }
 
@@ -213,8 +217,8 @@ obrazek nacti_ze_souboru(const char *soubor) {
 
   int bufferPointer = 0;
 
-  for(int i = 0; i < lineCount; i++) {
-    for(int j = 0; j < pixelCount; j++) {
+  for (int i = 0; i < lineCount; i++) {
+    for (int j = 0; j < pixelCount; j++) {
       instance.data[i][j] = atoi(&buffer[bufferPointer]);
       printf("%i ", atoi(&buffer[bufferPointer]));
       bufferPointer += 2;
@@ -229,12 +233,12 @@ obrazek nacti_ze_souboru(const char *soubor) {
 
 void uloz_do_souboru(obrazek obr, const char *soubor) {
   FILE *file = fopen(soubor, "w");
-  if(file == NULL) {
+  if (file == NULL) {
     chyba = CHYBA_OTEVRENI;
     return;
   }
 
-  for(int i = 0; i < obr.h; i++) {
+  for (int i = 0; i < obr.h; i++) {
     for (int j = 0; j < obr.w; j++) {
       short n = obr.data[i][j];
       fputc(SYMBOLS[n], file);
@@ -243,50 +247,44 @@ void uloz_do_souboru(obrazek obr, const char *soubor) {
   }
 
   int result = fclose(file);
-  if(result == EOF) {
+  if (result == EOF) {
     chyba = CHYBA_ZAVRENI;
   }
-
 }
 
-int vyska(obrazek obr) {
-  return obr.h;
-}
+int vyska(obrazek obr) { return obr.h; }
 
-int sirka(obrazek obr) {
-  return obr.w;
-}
+int sirka(obrazek obr) { return obr.w; }
 
-char prvek(obrazek obr, int i, int j) {
-  return SYMBOLS[obr.data[i][j]];
-}
+char prvek(obrazek obr, int i, int j) { return SYMBOLS[obr.data[i][j]]; }
 
 void nastav_prvek(obrazek obr, int i, int j, short hodnota) {
-  if(i < 0 || i > obr.w || j < 0 || j > obr.h || hodnota > MAX_VALUE || hodnota < MIN_VALUE) {
+  if (i < 0 || i > obr.w || j < 0 || j > obr.h || hodnota > MAX_VALUE ||
+      hodnota < MIN_VALUE) {
     chyba = CHYBA_TYPU;
     return;
   }
-  obr.data[i][j] = hodnota; 
+  obr.data[i][j] = hodnota;
 }
 
 int main() {
   printf("%i \n", chyba);
-  //obrazek test = cerny(4, 2);
-//
-  //zobraz(test);
-//
-  //obrazek test2 = otoc90(test);
-//
-  //obrazek test3 = jasova_operace(test, NEGATIV);
-  //zobraz(test3);
-//
-  //obrazek test4 = jasova_operace(test, ZMENA_JASU, -3);
-  //zobraz(test4);
-//
-  //obrazek test5 = jasova_operace(test, ZMENA_KONTRASTU, 2.0, 4);
-  //zobraz(test5);
-//
-  //zobraz(test2);
+  // obrazek test = cerny(4, 2);
+  //
+  // zobraz(test);
+  //
+  // obrazek test2 = otoc90(test);
+  //
+  // obrazek test3 = jasova_operace(test, NEGATIV);
+  // zobraz(test3);
+  //
+  // obrazek test4 = jasova_operace(test, ZMENA_JASU, -3);
+  // zobraz(test4);
+  //
+  // obrazek test5 = jasova_operace(test, ZMENA_KONTRASTU, 2.0, 4);
+  // zobraz(test5);
+  //
+  // zobraz(test2);
   obrazek test6 = nacti_ze_souboru("./test.txt");
   zobraz(test6);
 

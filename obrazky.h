@@ -10,18 +10,14 @@ typedef enum {
   CHYBA_JINA
 } STATE;
 
-typedef enum operace {
-  NEGATIV,
-  ZMENA_JASU,
-  ZMENA_KONTRASTU
-} operace;
+typedef enum operace { NEGATIV, ZMENA_JASU, ZMENA_KONTRASTU } operace;
 
 const char SYMBOLS[] = {' ', '.', ':', '+', '#'};
 
 typedef struct {
   int h;
   int w;
-  short** data;
+  short **data;
 } obrazek;
 
 obrazek inicializace(int h, int w);
