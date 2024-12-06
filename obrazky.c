@@ -170,6 +170,61 @@ obrazek jasova_operace(obrazek obr, operace o, ...) {
   return obr;
 }
 
+obrazek nacti_ze_souboru_buffed(const char *soubor) {
+  FILE *file = fopen(soubor, "r");
+  if (file == NULL) {
+    chyba = CHYBA_OTEVRENI;
+    return inicializace(0, 0);
+  }
+  char buffer[MAXBUFLEN + 1];
+  int lineCount = 0;
+  int firstLineLength = 0;
+
+  while (1) {
+    size_t res = fread(buffer, 1, MAXBUFLEN, file);
+    if (ferror(file)) {
+      chyba = CHYBA_JINA;
+      return inicializace(0, 0);
+    }
+    int i;
+    for (i = 0; i < res; i++) {
+      if (buffer[i] == '\n') {
+        if (firstLineLength == 0)
+          firstLineLength = i;
+        ++lineCount;
+      }
+    }
+
+    if (feof(file)) {
+      break;
+    }
+  }
+
+  int pixelCount = (firstLineLength + 1) / 2;
+
+  obrazek instance = inicializace(lineCount, pixelCount);
+
+  fseek(file, 0, SEEK_SET);
+  char *lineBuffer = NULL;
+  int bufferPointer = 0;
+  size_t len = 0;
+
+  for (int i = 0; i < lineCount; i++) {
+    ssize_t read = getline(&lineBuffer, &len, file);
+
+    for (int j = 0; j < pixelCount; j++) {
+      instance.data[i][j] = atoi(&buffer[bufferPointer]);
+      printf("%i ", atoi(&buffer[bufferPointer]));
+      bufferPointer += 2;
+    }
+    printf("\n");
+  }
+
+  fclose(file);
+
+  return instance;
+}
+
 obrazek nacti_ze_souboru(const char *soubor) {
   FILE *file = fopen(soubor, "r");
   if (file == NULL) {
@@ -268,7 +323,7 @@ void nastav_prvek(obrazek obr, int i, int j, short hodnota) {
 }
 
 int main() {
-  printf("%i \n", chyba);
+  // printf("%i \n", chyba);
   // obrazek test = cerny(4, 2);
   //
   // zobraz(test);
@@ -285,11 +340,11 @@ int main() {
   // zobraz(test5);
   //
   // zobraz(test2);
-  obrazek test6 = nacti_ze_souboru("./test.txt");
+  obrazek test6 = nacti_ze_souboru_buffed("./test.txt");
   zobraz(test6);
+  printf("%i, %i \n", test6.w, test6.h);
 
   obrazek test7 = otoc90(test6);
   zobraz(test7);
-
   uloz_do_souboru(test7, "./output.txt");
 }
