@@ -261,12 +261,14 @@ obrazek nacti_ze_souboru(const char *soubor) {
 
   } while (c != EOF);
 
+  if (charCount > 1)
+    lineCount++;
+
   if (lineCount == 0) {
     // Todo throw or return empty image?
   }
 
   int pixelCount = (firstLineLength + 1) / 2;
-  printf("%i \n", firstLineLength);
 
   obrazek instance = inicializace(lineCount, pixelCount);
 
@@ -340,9 +342,8 @@ int main() {
   // zobraz(test5);
   //
   // zobraz(test2);
-  obrazek test6 = nacti_ze_souboru_buffed("./test.txt");
+  obrazek test6 = nacti_ze_souboru("./test.txt");
   zobraz(test6);
-  printf("%i, %i \n", test6.w, test6.h);
 
   obrazek test7 = otoc90(test6);
   zobraz(test7);
