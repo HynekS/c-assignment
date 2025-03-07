@@ -1,3 +1,6 @@
+// Zápočtová úloha z KMI/XJC
+// Autor: Hynek Švácha
+
 #define MIN_VALUE 0
 #define MAX_VALUE 4
 
@@ -37,6 +40,8 @@ obrazek morfing(obrazek obr1, obrazek obr2);
 short min(obrazek obr);
 
 short max(obrazek obr);
+
+short zaokrouhli(double d);
 
 short normalize(double d);
 
