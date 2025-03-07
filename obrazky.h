@@ -1,8 +1,13 @@
 // Zápočtová úloha z KMI/XJC
 // Autor: Hynek Švácha
 
+#ifndef MIN_VALUE
 #define MIN_VALUE 0
+#endif
+
+#ifndef MAX_VALUE
 #define MAX_VALUE 4
+#endif
 
 typedef enum {
   BEZ_CHYBY,
@@ -12,8 +17,8 @@ typedef enum {
   CHYBA_TYPU,
   CHYBA_JINA
 } STATE;
-
-typedef enum operace { NEGATIV, ZMENA_JASU, ZMENA_KONTRASTU } operace;
+extern STATE chyba;
+typedef enum { NEGATIV, ZMENA_JASU, ZMENA_KONTRASTU } OPERACE;
 
 const char SYMBOLS[] = {' ', '.', ':', '+', '#'};
 
@@ -23,38 +28,34 @@ typedef struct {
   short **data;
 } obrazek;
 
-obrazek inicializace(int h, int w);
+extern obrazek inicializace(int h, int w);
 
-obrazek cerny(int h, int w);
+extern obrazek cerny(int h, int w);
 
-void odstran(obrazek obr);
+extern void odstran(obrazek obr);
 
-void print_value(short value);
+extern void print_value(short value);
 
-void zobraz(obrazek obr);
+extern void zobraz(obrazek obr);
 
-obrazek otoc90(obrazek obr);
+extern obrazek otoc90(obrazek obr);
 
-obrazek morfing(obrazek obr1, obrazek obr2);
+extern obrazek morfing(obrazek obr1, obrazek obr2);
 
-short min(obrazek obr);
+extern short min(obrazek obr);
 
-short max(obrazek obr);
+extern short max(obrazek obr);
 
-short zaokrouhli(double d);
+extern obrazek jasova_operace(obrazek obr, OPERACE o, ...);
 
-short normalize(double d);
+extern obrazek nacti_ze_souboru(const char *soubor);
 
-obrazek jasova_operace(obrazek obr, operace o, ...);
+extern void uloz_do_souboru(obrazek obr, const char *soubor);
 
-obrazek nacti_ze_souboru(const char *soubor);
+extern int vyska(obrazek obr);
 
-void uloz_do_souboru(obrazek obr, const char *soubor);
+extern int sirka(obrazek obr);
 
-int vyska(obrazek obr);
+extern char prvek(obrazek obr, int i, int j);
 
-int sirka(obrazek obr);
-
-char prvek(obrazek obr, int i, int j);
-
-void nastav_prvek(obrazek obr, int i, int j, short hodnota);
+extern void nastav_prvek(obrazek obr, int i, int j, short hodnota);

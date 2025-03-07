@@ -11,9 +11,23 @@
 
 #define EMPTY (obrazek){0, 0, NULL}
 
-STATE chyba = BEZ_CHYBY;
+/* UTILITIES */
+
+static short zaokrouhli(double d) { return (short)(d < 0 ? (d - 0.5) : (d + 0.5)); }
+
+static short normalize(double d) {
+  if (d < MIN_VALUE)
+    return MIN_VALUE;
+  if (d > MAX_VALUE)
+    return MAX_VALUE;
+  return zaokrouhli(d);
+}
+
+/* END UTILITIES */
 
 obrazek inicializace(int h, int w) {
+  if (h == 0 || w == 0) return EMPTY;
+
   short **data = (short **)malloc(h * sizeof(short *));
   if (data == NULL) {
     chyba = CHYBA_ALOKACE;
@@ -79,6 +93,10 @@ void zobraz(obrazek obr) {
 obrazek otoc90(obrazek obr) {
   // Notice: Width and height are swapped here
   obrazek result = inicializace(obr.w, obr.h);
+  if (result.data == NULL) {
+    chyba = CHYBA_ALOKACE;
+    return EMPTY;
+  }
 
   int ukazatel_nove_vysky = result.h - 1;
   int ukazatel_nove_sirky = 0;
@@ -103,6 +121,11 @@ obrazek morfing(obrazek obr1, obrazek obr2) {
     return obr1;
   }
   obrazek result = inicializace(obr1.h, obr1.w);
+  if (result.data == NULL) {
+    chyba = CHYBA_ALOKACE;
+    return EMPTY;
+  }
+
   for (int i = 0; i < obr1.h; i++) {
     for (int j = 0; j < obr1.w; j++) {
       short p1 = obr1.data[i][j];
@@ -139,17 +162,7 @@ short max(obrazek obr) {
   return currentMax;
 }
 
-short zaokrouhli(double d) { return (short)(d < 0 ? (d - 0.5) : (d + 0.5)); }
-
-short normalize(double d) {
-  if (d < MIN_VALUE)
-    return MIN_VALUE;
-  if (d > MAX_VALUE)
-    return MAX_VALUE;
-  return zaokrouhli(d);
-}
-
-obrazek jasova_operace(obrazek obr, operace o, ...) {
+obrazek jasova_operace(obrazek obr, OPERACE o, ...) {
   if (obr.data == NULL) {
     chyba = CHYBA_TYPU;
     return inicializace(0, 0);
@@ -171,6 +184,10 @@ obrazek jasova_operace(obrazek obr, operace o, ...) {
   va_end(args);
 
   obrazek result = inicializace(obr.h, obr.w);
+  if (result.data == NULL) {
+    chyba = CHYBA_ALOKACE;
+    return EMPTY;
+  }
 
   double mean = (MAX_VALUE - MIN_VALUE) / 2.0;
 
@@ -202,7 +219,7 @@ obrazek nacti_ze_souboru(const char *soubor) {
   FILE *file = fopen(soubor, "r");
   if (file == NULL) {
     chyba = CHYBA_OTEVRENI;
-    return inicializace(0, 0);
+    return EMPTY;
   }
   size_t index = 0;
   int lineCount = 0;
@@ -224,7 +241,8 @@ obrazek nacti_ze_souboru(const char *soubor) {
       }
       if (firstLineLength != charCount) {
         chyba = CHYBA_JINA;
-        return inicializace(0, 0);
+        fclose(file);
+        return EMPTY;
       }
       charCount = 0;
       lineCount++;
@@ -239,19 +257,26 @@ obrazek nacti_ze_souboru(const char *soubor) {
   if (charCount > 1) {
     if (firstLineLength != charCount) {
       chyba = CHYBA_JINA;
-      return inicializace(0, 0);
+      fclose(file);
+      return EMPTY;
     }
     lineCount++;
   }
 
   if (lineCount == 0) {
     chyba = CHYBA_TYPU;
-    return inicializace(0, 0);
+    fclose(file);
+    return EMPTY;
   }
 
   int pixelCount = (firstLineLength + 1) / 2;
 
   obrazek result = inicializace(lineCount, pixelCount);
+  if (result.data == NULL) {
+    chyba = CHYBA_ALOKACE;
+    fclose(file);
+    return EMPTY;
+  }
 
   int bufferPointer = 0;
 
