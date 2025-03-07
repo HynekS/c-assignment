@@ -9,13 +9,15 @@
 
 #define MAXBUFLEN 100000
 
+#define EMPTY (obrazek){0, 0, NULL}
+
 STATE chyba = BEZ_CHYBY;
 
 obrazek inicializace(int h, int w) {
   short **data = (short **)malloc(h * sizeof(short *));
   if (data == NULL) {
     chyba = CHYBA_ALOKACE;
-    return (obrazek){0, 0, NULL};
+    return EMPTY;
   }
 
   for (int i = 0; i < h; i++) {
@@ -27,7 +29,7 @@ obrazek inicializace(int h, int w) {
       }
       free(data);
       chyba = CHYBA_ALOKACE;
-      return (obrazek){0, 0, NULL};
+      return EMPTY;
     }
   }
   return (obrazek){h, w, data};
@@ -35,6 +37,10 @@ obrazek inicializace(int h, int w) {
 
 obrazek cerny(int h, int w) {
   obrazek result = inicializace(h, w);
+  if (result.data == NULL) {
+    chyba = CHYBA_ALOKACE;
+    return EMPTY;
+  }
 
   for (int i = 0; i < h; i++)
     for (int j = 0; j < w; j++) {
@@ -102,7 +108,7 @@ obrazek morfing(obrazek obr1, obrazek obr2) {
       short p1 = obr1.data[i][j];
       short p2 = obr2.data[i][j];
 
-      short morphed = zaokrouhli((p1 + p2) / 2);
+      short morphed = zaokrouhli((p1 + p2) / 2.0);
       result.data[i][j] = morphed;
     }
   }
@@ -144,6 +150,10 @@ short normalize(double d) {
 }
 
 obrazek jasova_operace(obrazek obr, operace o, ...) {
+  if (obr.data == NULL) {
+    chyba = CHYBA_TYPU;
+    return inicializace(0, 0);
+  }
   int delta = 0;
   double multiplier = 1.0;
   int addend = 0;
@@ -162,7 +172,7 @@ obrazek jasova_operace(obrazek obr, operace o, ...) {
 
   obrazek result = inicializace(obr.h, obr.w);
 
-  double mean = (MAX_VALUE - MIN_VALUE) / 2;
+  double mean = (MAX_VALUE - MIN_VALUE) / 2.0;
 
   for (int i = 0; i < obr.h; i++) {
     for (int j = 0; j < obr.w; j++) {
@@ -178,7 +188,7 @@ obrazek jasova_operace(obrazek obr, operace o, ...) {
       }
       case ZMENA_KONTRASTU: {
         result.data[i][j] =
-            normalize((pixel - mean) * multiplier + mean + addend);
+            normalize((pixel - mean) * multiplier + addend);
         break;
       }
       }
