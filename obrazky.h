@@ -1,14 +1,10 @@
 // Zápočtová úloha z KMI/XJC
 // Autor: Hynek Švácha
 
-#ifndef MIN_VALUE
+#ifndef OBRAZKY_H
+
 #define MIN_VALUE 0
-#endif
-
-#ifndef MAX_VALUE
 #define MAX_VALUE 4
-#endif
-
 typedef enum {
   BEZ_CHYBY,
   CHYBA_ALOKACE,
@@ -20,7 +16,7 @@ typedef enum {
 extern STATE chyba;
 typedef enum { NEGATIV, ZMENA_JASU, ZMENA_KONTRASTU } OPERACE;
 
-const char SYMBOLS[] = {' ', '.', ':', '+', '#'};
+static const char SYMBOLS[] = {' ', '.', ':', '+', '#'};
 
 typedef struct {
   int h;
@@ -59,3 +55,5 @@ extern int sirka(obrazek obr);
 extern char prvek(obrazek obr, int i, int j);
 
 extern void nastav_prvek(obrazek obr, int i, int j, short hodnota);
+
+#endif

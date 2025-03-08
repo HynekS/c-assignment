@@ -11,6 +11,8 @@
 
 #define EMPTY (obrazek){0, 0, NULL}
 
+STATE chyba = BEZ_CHYBY;
+
 /* UTILITIES */
 
 static short zaokrouhli(double d) { return (short)(d < 0 ? (d - 0.5) : (d + 0.5)); }
